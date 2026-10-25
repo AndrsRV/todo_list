@@ -105,16 +105,25 @@ function renderChecklist(todo, onToggleChecklistItem, onRemoveChecklistItem, onA
   );
 
   const newItemInput = el('input', { type: 'text', className: 'checklist-input', placeholder: 'Add checklist item' });
+  const addItem = () => {
+    const text = newItemInput.value.trim();
+    if (!text) return;
+    onAddChecklistItem(todo.id, text);
+    newItemInput.value = '';
+    // Adding re-renders the modal, replacing this input; refocus the new one for quick entry.
+    document.querySelector('.checklist-input')?.focus();
+  };
+  // Enter would otherwise submit the surrounding edit form (saving and closing the modal).
+  newItemInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    addItem();
+  });
   const addItemButton = el('button', {
     type: 'button',
     className: 'checklist-add-btn',
     text: '+ Add',
-    onClick: () => {
-      const text = newItemInput.value.trim();
-      if (!text) return;
-      onAddChecklistItem(todo.id, text);
-      newItemInput.value = '';
-    },
+    onClick: addItem,
   });
 
   return el('div', { className: 'detail-field checklist-section' }, [
